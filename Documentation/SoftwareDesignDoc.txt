@@ -1,0 +1,110 @@
+Weather Widget
+
+Make a borderless app, that can be dragged around the desktop and resized responsivly.
+
+The app should have 3 view:
+    - Today's Weather: display the current tempurature, icon depicting (rain/sun/snow/ect), todays tempurature high, todays tempurature low, short forecast description, detailed forecast hidden behind a hover information icon.
+
+Weather API - https://openweathermap.org/
+DAILY WEATHER FORECAST API EXAMPLE
+By ZIP code
+Description:
+Please note if country is not specified then the search works for USA as a default.
+
+API call:
+    api.openweathermap.org/data/2.5/weather?zip={zip code},{country code}
+Examples of API calls:
+    api.openweathermap.org/data/2.5/weather?zip=94040,us
+
+Daily Forecast Parameters:
+•	coord
+o	coord.lon City geo location, longitude
+o	coord.lat City geo location, latitude
+•	weather (more info Weather condition codes)
+o	weather.id Weather condition id
+o	weather.main Group of weather parameters (Rain, Snow, Extreme etc.)
+o	weather.description Weather condition within the group
+o	weather.icon Weather icon id
+•	base Internal parameter
+•	main
+o	main.temp Temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+o	main.feels_like Temperature. This temperature parameter accounts for the human perception of weather. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+o	main.pressure Atmospheric pressure (on the sea level, if there is no sea_level or grnd_level data), hPa
+o	main.humidity Humidity, %
+o	main.temp_min Minimum temperature at the moment. This is deviation from current temp that is possible for large cities and megalopolises geographically expanded (use these parameter optionally). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+o	main.temp_max Maximum temperature at the moment. This is deviation from current temp that is possible for large cities and megalopolises geographically expanded (use these parameter optionally). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+o	main.sea_level Atmospheric pressure on the sea level, hPa
+o	main.grnd_level Atmospheric pressure on the ground level, hPa
+•	wind
+o	wind.speed Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour.
+o	wind.deg Wind direction, degrees (meteorological)
+•	clouds
+o	clouds.all Cloudiness, %
+•	rain
+o	rain.1h Rain volume for the last 1 hour, mm
+o	rain.3h Rain volume for the last 3 hours, mm
+•	snow
+o	snow.1h Snow volume for the last 1 hour, mm
+o	snow.3h Snow volume for the last 3 hours, mm
+•	dt Time of data calculation, unix, UTC
+•	sys
+o	sys.type Internal parameter
+o	sys.id Internal parameter
+o	sys.message Internal parameter
+o	sys.country Country code (GB, JP etc.)
+o	sys.sunrise Sunrise time, unix, UTC
+o	sys.sunset Sunset time, unix, UTC
+•	timezone Shift in seconds from UTC
+•	id City ID
+•	name City name
+•	cod Internal parameter
+5 DAY FORECAST API EXAMPLE
+By ZIP code
+Description:
+Please note if country is not specified then the search works for USA as a default.
+API call:
+api.openweathermap.org/data/2.5/forecast?zip={zip code},{country code}
+Parameters:
+zip zip code
+Examples of API calls:
+api.openweathermap.org/data/2.5/forecast?zip=94040,us
+
+5 Day Forecast Parameters:
+•	code Internal parameter
+•	message Internal parameter
+•	city
+o	city.id City ID
+o	city.name City name
+o	city.coord
+	city.coord.lat City geo location, latitude
+	city.coord.lon City geo location, longitude
+o	city.country Country code (GB, JP etc.)
+o	city.timezone Shift in seconds from UTC
+•	cnt Number of lines returned by this API call
+•	list
+o	list.dt Time of data forecasted, unix, UTC
+o	list.main
+	list.main.temp Temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+	list.main.feels_like Temperature. This temperature parameter accounts for the human perception of weather. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+	list.main.temp_min Minimum temperature at the moment of calculation. This is deviation from 'temp' that is possible for large cities and megalopolises geographically expanded (use these parameter optionally). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+	list.main.temp_max Maximum temperature at the moment of calculation. This is deviation from 'temp' that is possible for large cities and megalopolises geographically expanded (use these parameter optionally). Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
+	list.main.pressure Atmospheric pressure on the sea level by default, hPa
+	list.main.sea_level Atmospheric pressure on the sea level, hPa
+	list.main.grnd_level Atmospheric pressure on the ground level, hPa
+	list.main.humidity Humidity, %
+	list.main.temp_kf Internal parameter
+o	list.weather (more info Weather condition codes)
+	list.weather.id Weather condition id
+	list.weather.main Group of weather parameters (Rain, Snow, Extreme etc.)
+	list.weather.description Weather condition within the group
+	list.weather.icon Weather icon id
+o	list.clouds
+	list.clouds.all Cloudiness, %
+o	list.wind
+	list.wind.speed Wind speed. Unit Default: meter/sec, Metric: meter/sec, Imperial: miles/hour.
+	list.wind.deg Wind direction, degrees (meteorological)
+o	list.rain
+	list.rain.3h Rain volume for last 3 hours, mm
+o	list.snow
+	list.snow.3h Snow volume for last 3 hours
+o	list.dt_txt Time of data forecasted, ISO, UTC
