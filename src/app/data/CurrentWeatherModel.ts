@@ -3,12 +3,12 @@ export class CurrentWeatherModel {
         lon: string;            // Longitude
         lat: string;            // Latitude
     };
-    weather: {
+    weather: [{
         id: number;             // Weather condition code ID
         main: string;           // Group of weather parameters (Rain, Snow, Extreme etc.)
         description: string;    // Weather condition within the group small description
         icon: string;           // Weather icon id
-    };
+    }];
     base: string;               // Not sure what this is for
     main: {
         temp: number;           // Temperature. Unit Default: Kelvin, Metric: Celsius, Imperial: Fahrenheit.
