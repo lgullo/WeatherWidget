@@ -5,57 +5,227 @@
     </a>
 </nav> -->
 
+<!-- Snow Fall Container -->
+<div *ngIf="currentWeather != null && isSnowing(currentWeather.weather[0].id)">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+    <img src="../assets/weather-icons/png/snowflake.png" class="snowflake" width="10px" alt="">
+</div>
 
-<ul class="nav nav-tabs nav-justified md-tabs indigo" id="myTabJust" role="tablist">
+
+<ul class="nav nav-tabs nav-justified md-tabs" id="myTabJust" role="tablist">
     <li class="nav-item">
-      <a class="nav-link active" id="home-tab-just" data-toggle="tab" href="#home-just" role="tab" aria-controls="home-just"
-        aria-selected="true">Today</a>
+        <a class="nav-link active" id="todays-forecast-tab" data-toggle="tab" href="#todays-forecast" role="tab"
+            aria-controls="todays-forecast" aria-selected="true">TODAY</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" id="profile-tab-just" data-toggle="tab" href="#profile-just" role="tab" aria-controls="profile-just"
-        aria-selected="false">5-Day</a>
+        <a class="nav-link" id="five-day-forecast-tab" data-toggle="tab" href="#five-day-forecast" role="tab"
+            aria-controls="five-day-forecast" aria-selected="false">5 DAY</a>
     </li>
-  </ul>
-  <div class="tab-content py-2" id="myTabContentJust" style="height: 80%;">
-    <div class="tab-pane fade show active" id="home-just" role="tabpanel" aria-labelledby="home-tab-just" style="height: 100%;">
-        <div class="row d-flex flex-wrap align-items-center" style="text-align: center; height: 100%;" >
-            <div class="col-4">
-                <img [src]="getWeatherIcon(currentWeather.weather[0].id)" width="120px" class="img-fluid" alt="sunny"/>
+    <li class="nav-item" style="flex: none;">
+        <a class="nav-link" id="settings-tab" data-toggle="tab" href="#settings" role="tab"
+            aria-controls="settings" aria-selected="false"><i class="fas fa-cog"></i></a>
+    </li>
+</ul>
+<div class="tab-content py-2" id="tab-content" style="height: 80%;">
+    <div class="tab-pane fade show active" id="todays-forecast" role="tabpanel" aria-labelledby="todays-forecast-tab"
+        style="height: 100%;">
+        <div *ngIf="currentWeatherLoaded" class="row d-flex flex-wrap align-items-center justify-content-center"
+            style="text-align: center; height: 100%;">
+            <div class="col ml-4 pt-1">
+                <img [src]="getWeatherIcon(currentWeather.weather[0].id)" width="120px" class="img-fluid" alt="sunny" />
+                <h3 class="close-lineheight pt-3">{{currentTimeString}}</h3>
+                <h4 class="close-lineheight">{{currentDateString}}</h4>
             </div>
-            <div class="col-4">
-                <h1 style="font-size: 10rem;">{{getCurrentWeatherTemp()}}°</h1>
+            <div class="col mr-4">
+ 
+                <h1 style="font-size: 8rem;" class="close-lineheight pl-3">{{convertKelvin(currentWeather.main.temp)}}°</h1>
+                <h4 class="close-lineheight">Feels Like {{convertKelvin(currentWeather.main.feels_like)}}°<small>{{unitOfTemperature}}</small>
+                </h4>
+                <p class="close-lineheight">Last Updated: {{currentTimeString}}</p>
+
             </div>
-            <div class="col-4">
-                <h4>{{getCurrentWeatherHighTemp()}}° HIGH</h4>
-                <h4>{{getCurrentWeatherLowTemp()}}° LOW</h4>
+            <div class="col-3 mr-4">
+                <div class="row justify-content-center mb-3">
+                    <div class="col-6">
+                        <h6 class="close-lineheight">HIGH</h6>
+                        <h4 class="close-lineheight">{{convertKelvin(currentWeather.main.temp_max)}}°<small>{{unitOfTemperature}}</small></h4>
+                        <img src="../assets/weather-icons/png/high-thermometer.png" width="30px" class="img-fluid"
+                            alt="Sunrise">
+                    </div>
+                    <div class="col-6">
+                        <h6 class="close-lineheight">LOW</h6>
+                        <h4 class="close-lineheight">{{convertKelvin(currentWeather.main.temp_min)}}°<small>{{unitOfTemperature}}</small></h4>
+                        <img src="../assets/weather-icons/png/low-thermometer.png" width="30px" class="img-fluid"
+                            alt="Sunrise">
+                    </div>
+                </div>
+                <!-- <div class="row justify-content-center">
+                    <h4>{{getCurrentWeatherLowTemp()}}° LOW</h4>
+                </div> -->
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        Sunrise
+                    </div>
+                    <div class="col-6">
+                        Sunset
+                    </div>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <img src="../assets/weather-icons/png/sunrise.png" width="60px" class="img-fluid" alt="Sunrise">
+                    </div>
+                    <div class="col-6">
+                        <img src="../assets/weather-icons/png/sunset.png" width="60px" class="img-fluid" alt="Sunset">
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        {{getHourStringFromUnixTime(currentWeather.sys.sunrise)}}
+                    </div>
+                    <div class="col-6">
+                        {{getHourStringFromUnixTime(currentWeather.sys.sunset)}}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="tab-pane fade" id="profile-just" role="tabpanel" aria-labelledby="profile-tab-just">
-        <div class="row d-flex flex-wrap align-items-center" style="text-align: center;">
-            <div class="col">
-                <h1 style="font-size: 2rem;">{{convertKelvinToFahrenheit(fiveDayWeather.list[4].main.temp)}}°</h1>
-                <img [src]="getWeatherIcon(fiveDayWeather.list[4].weather[0].id)" class="img-fluid" width="75px" alt="sunny">
+    <div class="tab-pane fade" id="five-day-forecast" role="tabpanel" aria-labelledby="five-day-forecast-tab" style="height: 100%;">
+        <div *ngIf="listFiveDayForecast != null" class="row d-flex flex-wrap align-items-center justify-content-center px-4" style="text-align: center; height: 100%;">
+
+            <div *ngFor="let forecast of listFiveDayForecast" class="col mx-1 px-0">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="close-lineheight" style="font-size: 2rem;">{{convertKelvin(forecast.high)}}°</h1>
+                        <h5>{{convertKelvin(forecast.low)}}°</h5>
+                        <img [src]="getDaytimeWeatherIcon(forecast.weatherId)" class="img-fluid" width="75px"
+                            alt="sunny">
+                        <h6 class="mt-2">{{forecast.date}}</h6>
+                    </div>
+                </div>
+                
+            </div>
+            <!-- <div class="col">
+                <h1 style="font-size: 2rem;">{{convertKelvin(fiveDayWeather.list[9].main.temp)}}°</h1>
+                <img [src]="getWeatherIcon(fiveDayWeather.list[9].weather[0].id)" class="img-fluid" width="75px"
+                    alt="sunny">
             </div>
             <div class="col">
-                <h1 style="font-size: 2rem;">{{convertKelvinToFahrenheit(fiveDayWeather.list[9].main.temp)}}°</h1>
-                <img [src]="getWeatherIcon(fiveDayWeather.list[9].weather[0].id)" class="img-fluid" width="75px" alt="sunny">
+                <h1 style="font-size: 2rem;">{{convertKelvin(fiveDayWeather.list[14].main.temp)}}°</h1>
+                <img [src]="getWeatherIcon(fiveDayWeather.list[14].weather[0].id)" class="img-fluid" width="75px"
+                    alt="sunny">
             </div>
             <div class="col">
-                <h1 style="font-size: 2rem;">{{convertKelvinToFahrenheit(fiveDayWeather.list[14].main.temp)}}°</h1>
-                <img [src]="getWeatherIcon(fiveDayWeather.list[14].weather[0].id)" class="img-fluid" width="75px" alt="sunny">
+                <h1 style="font-size: 2rem;">{{convertKelvin(fiveDayWeather.list[19].main.temp)}}°</h1>
+                <img [src]="getWeatherIcon(fiveDayWeather.list[19].weather[0].id)" class="img-fluid" width="75px"
+                    alt="sunny">
             </div>
             <div class="col">
-                <h1 style="font-size: 2rem;">{{convertKelvinToFahrenheit(fiveDayWeather.list[19].main.temp)}}°</h1>
-                <img [src]="getWeatherIcon(fiveDayWeather.list[19].weather[0].id)" class="img-fluid" width="75px" alt="sunny">
-            </div>
-            <div class="col">
-                <h1 style="font-size: 2rem;">{{convertKelvinToFahrenheit(fiveDayWeather.list[24].main.temp)}}°</h1>
-                <img [src]="getWeatherIcon(fiveDayWeather.list[24].weather[0].id)" class="img-fluid" width="75px" alt="sunny">
-            </div>
+                <h1 style="font-size: 2rem;">{{convertKelvin(fiveDayWeather.list[24].main.temp)}}°</h1>
+                <img [src]="getWeatherIcon(fiveDayWeather.list[24].weather[0].id)" class="img-fluid" width="75px"
+                    alt="sunny">
+            </div> -->
         </div>
     </div>
-  </div>
-  
+    <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+        <!-- <div class="row d-flex flex-wrap align-items-center" style="text-align: center;">
+            <div class="col-12">
+                Unit of Temperature
+            </div>
+            <div class="col-12">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="unitOfTemperature" id="FahrenheitRadio" value="F">
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="unitOfTemperature" id="CelsiusRadio" value="C">
+                </div>
+            </div>
+        </div> -->
+        <div class="container">
+            <div class="row d-flex flex-wrap align-items-center justify-content-center" style="text-align: center;">
+                <div class="col-12">
+                    <h4 class="display-6">Unit of Temperature</h4>
+                </div>
+                <div class="col-6">
+                    <div class="radio-tile-group">
+                      
+                        <div class="input-container">
+                          <input id="Fahrenheit" class="radio-button" type="radio" name="unitOfTemperatureRadio" [checked]="this.userPreferences.unitOfTemperature == 'F'" (change)="handleChange($event)"/>
+                          <div class="radio-tile">
+                            <label for="Fahrenheit" class="radio-tile-label mb-0">Fahrenheit</label>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="radio-tile-group">
+                      
+                        <div class="input-container">
+                          <input id="Celsius" class="radio-button" type="radio" name="unitOfTemperatureRadio" [checked]="this.userPreferences.unitOfTemperature == 'C'" (change)="handleChange($event)"/>
+                          <div class="radio-tile">
+                            <label for="Celsius" class="radio-tile-label mb-0">Celsius</label>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <h4 class="display-6">Color Theme</h4>
+                </div>
+                <div class="col-6">
+                    <div class="radio-tile-group">
+                      
+                        <div class="input-container">
+                          <input id="DarkTheme" class="radio-button" type="radio" name="themePicker" [checked]="this.userPreferences.activeTheme.name == 'dark'" (change)="handleChange($event)"/>
+                          <div class="radio-tile">
+                            <label for="DarkTheme" class="radio-tile-label mb-0">Dark Theme</label>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="radio-tile-group">
+                      
+                        <div class="input-container">
+                          <input id="LightTheme" class="radio-button" type="radio" name="themePicker" [checked]="this.userPreferences.activeTheme.name == 'light'" (change)="handleChange($event)"/>
+                          <div class="radio-tile">
+                            <label for="LightTheme" class="radio-tile-label mb-0">Light Theme</label>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <router-outlet></router-outlet>
-<div style="text-align: center;">Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+<div style="text-align: center;">
+
+    Icons made by <a href="https://www.flaticon.com/authors/freepik" target="_blank" title="Freepik">Freepik</a> from <a
+        href="https://www.flaticon.com/" target="_blank" title="Flaticon">www.flaticon.com</a>
+
+</div>

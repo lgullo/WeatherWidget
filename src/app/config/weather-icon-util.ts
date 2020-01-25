@@ -69,4 +69,12 @@ export default class WeatherIconUtil {
         return icon;
     }
 
+    static isSnowing(weatherCodeId: number) {
+        if (weatherCodeId >= 600 && weatherCodeId <= 622) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

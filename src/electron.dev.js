@@ -1,6 +1,8 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
+const Store = require('electron-store');
+var iconpath = path.join(__dirname, 'assets/weather-icons/png/036-eclipse.png')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -12,9 +14,14 @@ const createWindow = () => {
     setTimeout(() => {
         // Create the browser window.
         win = new BrowserWindow({
-            width: 680,
-            height: 340,
+            width: 640,
+            height: 300,
+            resizable: false,
             frame: false,
+            skipTaskbar: true,
+            webPreferences: {
+                nodeIntegration: true
+            },
             icon: './src/favicon.ico'
         });
 
@@ -24,6 +31,19 @@ const createWindow = () => {
             protocol: 'http:',
             slashes: true
         }));
+
+        var appIcon = new Tray(iconpath)
+
+        var contextMenu = Menu.buildFromTemplate([
+            {
+                label: 'Quit', click: function () {
+                    app.isQuiting = true
+                    app.quit()
+                }
+            }
+        ])
+
+        appIcon.setContextMenu(contextMenu)
         
         //UNCOMMENT THIS TO SHOW DEV TOOLS
         //win.webContents.openDevTools();
@@ -35,6 +55,16 @@ const createWindow = () => {
             // when you should delete the corresponding element.
             win = null;
         });
+
+        win.on('minimize', function (event) {
+            event.preventDefault()
+            win.hide()
+        });
+    
+        win.on('show', function () {
+            appIcon.setHighlightMode('always')
+        });
+
     }, 10000);
 }
 
@@ -59,3 +89,16 @@ app.on('activate', () => {
         createWindow();
     }
 });
+
+const store = new Store();
+
+ipcMain.on('saveUserPreferences', (event, arg) => {
+    console.log(arg);
+    store.set('userPreferences', arg);
+    event.returnValue = true;
+})
+
+ipcMain.on('loadUserPreferences', (event, arg) => {
+    console.log(arg);
+    event.returnValue = store.get('userPreferences');
+})
