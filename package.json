@@ -1,5 +1,11 @@
 {
   "name": "weather-widget",
+  "description": "A simple widget for displaying useful weather forecast information for your area!",
+  "author": {
+    "name": "Lucas Gullo",
+    "email": "contact@lucas-gullo.com",
+    "url": "http://Lucas-Gullo.com"
+  },
   "version": "0.0.0",
   "main": "main.js",
   "scripts": {
@@ -9,7 +15,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "electron": "electron ./src/electron.dev",
+    "electron": "electron .",
+    "electron-dev": "electron ./src/electron.dev",
     "start-electron": "ng serve & npm run electron"
   },
   "private": true,
@@ -24,8 +31,11 @@
     "@angular/router": "~8.2.8",
     "@fortawesome/fontawesome-free": "^5.12.0",
     "bootstrap": "^4.4.1",
+    "electron-settings": "^3.2.0",
     "electron-store": "^5.1.0",
+    "electron-unhandled": "^3.0.2",
     "jquery": "^3.4.1",
+    "open": "^7.0.0",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",
     "zone.js": "~0.9.1"

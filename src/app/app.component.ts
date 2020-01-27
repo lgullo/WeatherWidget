@@ -6,6 +6,7 @@ import { FiveDayWeatherModel } from './data/FiveDayWeatherModel';
 import { Theme, light, dark } from "./data/Theme";
 import { IpcRenderer } from 'electron';
 import { UserPreferences } from './data/UserPreferences';
+import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
@@ -14,13 +15,15 @@ import { UserPreferences } from './data/UserPreferences';
 })
 export class AppComponent implements OnInit {
 
+  loading: boolean = true;
+
   title = 'weather-widget';
 
   currentWeather: CurrentWeatherModel;
   fiveDayWeather: FiveDayWeatherModel;
 
-  fiveDayForecast: Map<string, { date: string, high: number, low: number, weatherId: number, time: number}>;
-  listFiveDayForecast: Array<{ date: string, high: number, low: number, weatherId: number, time: number}>;
+  fiveDayForecast: Map<string, { date: string, high: number, low: number, weatherId: number, time: number }>;
+  listFiveDayForecast: Array<{ date: string, high: number, low: number, weatherId: number, time: number }>;
   fiveDayForecastLoaded: boolean = false;
   currentWeatherLoaded: boolean = false;
   currentTimeString: string = "N/A";
@@ -31,10 +34,13 @@ export class AppComponent implements OnInit {
 
   userPreferences: UserPreferences;
   isElectron: boolean = false;
+  needZipcode: boolean = true;
+
+  zipcodeForm: FormGroup;
 
   private ipc: IpcRenderer;
 
-  constructor(private weatherApiService: WeatherApiService) {
+  constructor(private weatherApiService: WeatherApiService, public fb: FormBuilder) {
     if ((<any>window).require) {
       try {
         this.ipc = (<any>window).require('electron').ipcRenderer;
@@ -45,6 +51,10 @@ export class AppComponent implements OnInit {
     } else {
       console.warn('Electron\'s IPC was not loaded');
     }
+
+    this.zipcodeForm = new FormGroup({
+      zipcodeInput: new FormControl('', [Validators.required, Validators.pattern('^[0-9]{5}(?:-[0-9]{4})?$')])
+    });
   }
 
   ngOnInit() {
@@ -52,7 +62,7 @@ export class AppComponent implements OnInit {
     if (this.isElectron) {
       this.userPreferences = this.ipc.sendSync('loadUserPreferences', 'ping');
     }
-    
+
     // Load user preferences into local object
     // this.userPreferences = this.ipc.sendSync('loadUserPreferences', 'ping');
     if (this.userPreferences == null) {
@@ -64,24 +74,34 @@ export class AppComponent implements OnInit {
       this.setTheme(this.userPreferences.activeTheme);
     }
 
-    this.updateCurrentTime();
-    this.getTodaysForecast();
-    this.getFiveDayForecast();
+    if (this.userPreferences != null && this.userPreferences.zipcode != null) {
+      this.updateCurrentTime();
+      this.getTodaysForecast();
+      this.getFiveDayForecast();
+    } else {
+      this.loading = false;
+    }
 
     setInterval(() => {
       this.updateCurrentTime();
     }, 1000);
 
     setInterval(() => {
-      this.updateWeather();
+      if (this.userPreferences != null && this.userPreferences.zipcode != null){
+        this.updateWeather();
+      }
     }, 300000); // Refresh weather data every 5 minutes
   }
 
-  saveUserPerferences(){
+  allowOnlyNumbers(event) {
+    this.zipcodeForm.markAllAsTouched();
+  }
+
+  saveUserPerferences() {
     if (this.isElectron) {
       console.log("SAVING USER PREFERENCE", this.userPreferences);
       this.ipc.sendSync('saveUserPreferences', this.userPreferences);
-    } 
+    }
   }
 
   updateCurrentTime() {
@@ -93,10 +113,13 @@ export class AppComponent implements OnInit {
       hours = hours % 12;
       amOrpm = 'PM';
     }
+    if (hours == 12) {
+      amOrpm = 'PM';
+    }
     let minutes = dateTime.getMinutes().toString();
-      if (dateTime.getMinutes() < 10) {
-        minutes = '0' + minutes;
-      }
+    if (dateTime.getMinutes() < 10) {
+      minutes = '0' + minutes;
+    }
     this.currentTimeString = hours + ':' + minutes + ' ' + amOrpm;
     this.currentDateString = months[dateTime.getMonth()] + '. ' + dateTime.getDate();
   }
@@ -107,46 +130,52 @@ export class AppComponent implements OnInit {
   }
 
   getTodaysForecast() {
-    this.weatherApiService.getCurrentForecastByZipCode('26554').subscribe(response => {
+    this.weatherApiService.getCurrentForecastByZipCode(this.userPreferences.zipcode).subscribe(response => {
       this.currentWeather = response;
-      this.currentWeatherLoaded = true;
+      if (this.currentWeather != null) {
+        this.currentWeatherLoaded = true;
+      }
+      this.loading = false;
     })
   }
 
   getFiveDayForecast() {
-    this.weatherApiService.getFiveDayForecastByZipCode('26554').subscribe(response => {
+    this.weatherApiService.getFiveDayForecastByZipCode(this.userPreferences.zipcode).subscribe(response => {
       this.fiveDayWeather = response;
-      this.fiveDayForecast = new Map<string, { date: string, high: number, low: number, weatherId: number, time: number }>();
-      this.fiveDayWeather.list.forEach(item => {
-        
-        let currentDate = new Date();
-        let itemDate = new Date(item.dt * 1000);
+      if (this.fiveDayWeather != null) {
+        this.fiveDayForecast = new Map<string, { date: string, high: number, low: number, weatherId: number, time: number }>();
+        this.fiveDayWeather.list.forEach(item => {
 
-        // Make sure the forecast we are looking at is tomorrow and on (NOT TODAY)
-        if (currentDate.getFullYear() <= itemDate.getFullYear() && currentDate.getMonth() <= itemDate.getMonth() && currentDate.getDate() < itemDate.getDate()) {
-          let key = itemDate.getMonth() + 1 + '/' + itemDate.getDate();
-          if (this.fiveDayForecast.has(key)) {
-            if (this.fiveDayForecast.get(key).high < item.main.temp_max) {
-              this.fiveDayForecast.get(key).high = item.main.temp_max;
+          let currentDate = new Date();
+          let itemDate = new Date(item.dt * 1000);
+
+          // Make sure the forecast we are looking at is tomorrow and on (NOT TODAY)
+          if (currentDate.getFullYear() <= itemDate.getFullYear() && currentDate.getMonth() <= itemDate.getMonth() && currentDate.getDate() < itemDate.getDate()) {
+            let key = itemDate.getMonth() + 1 + '/' + itemDate.getDate();
+            if (this.fiveDayForecast.has(key)) {
+              if (this.fiveDayForecast.get(key).high < item.main.temp_max) {
+                this.fiveDayForecast.get(key).high = item.main.temp_max;
+              }
+              if (this.fiveDayForecast.get(key).low > item.main.temp_min) {
+                this.fiveDayForecast.get(key).low = item.main.temp_min;
+              }
+            } else {
+              this.fiveDayForecast.set(key, { date: key, high: item.main.temp_max, low: item.main.temp_min, weatherId: item.weather[0].id, time: item.dt });
             }
-            if (this.fiveDayForecast.get(key).low > item.main.temp_min) {
-              this.fiveDayForecast.get(key).low = item.main.temp_min;
-            }
-          } else {
-            this.fiveDayForecast.set(key, { date: key, high: item.main.temp_max, low: item.main.temp_min, weatherId: item.weather[0].id, time: item.dt});
           }
-        }
-      })
-      this.listFiveDayForecast = new Array();
-      this.fiveDayForecast.forEach(item => {
-        this.listFiveDayForecast.push({
-          date: item.date,
-          high: item.high,
-          low: item.low,
-          weatherId: item.weatherId,
-          time: item.time
         })
-      })
+        this.listFiveDayForecast = new Array();
+        this.fiveDayForecast.forEach(item => {
+          this.listFiveDayForecast.push({
+            date: item.date,
+            high: item.high,
+            low: item.low,
+            weatherId: item.weatherId,
+            time: item.time
+          })
+        })
+      }
+
     })
   }
 
@@ -170,7 +199,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  getDaytimeWeatherIcon(iconId: number) {    
+  getDaytimeWeatherIcon(iconId: number) {
     return WeatherIconUtil.getIcon(iconId, true);
   }
 
@@ -179,15 +208,15 @@ export class AppComponent implements OnInit {
   }
 
   convertKelvin(k: number) {
-     if (this.userPreferences.unitOfTemperature == 'C') {
+    if (this.userPreferences.unitOfTemperature == 'C') {
       return this.convertKelvinToCelsius(k);
-     } else {
+    } else {
       return this.convertKelvinToFahrenheit(k);
-     }
+    }
   }
 
   convertKelvinToCelsius(k: number) {
-    return (k - 273.15).toFixed(0); 
+    return (k - 273.15).toFixed(0);
   }
 
   convertKelvinToFahrenheit(k: number) {
@@ -241,5 +270,24 @@ export class AppComponent implements OnInit {
     theme.properties.forEach(cssVar => {
       this.themeWrapper.style.setProperty(cssVar.key, cssVar.value);
     })
+  }
+
+  setZipcode() {
+    this.zipcodeForm.markAllAsTouched();
+    if (this.zipcodeForm.valid) {
+      console.log(this.zipcodeInput.value);
+      this.userPreferences.zipcode = this.zipcodeInput.value;
+      this.updateWeather();
+      this.updateCurrentTime();
+      //this.saveUserPerferences();
+    }
+  }
+
+  updateZipcode() {
+    this.currentWeatherLoaded = false;
+  }
+
+  get zipcodeInput() {
+    return this.zipcodeForm.get('zipcodeInput');
   }
 }

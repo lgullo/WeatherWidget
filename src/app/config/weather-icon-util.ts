@@ -1,7 +1,7 @@
 // This class will provide you with the name of the png file that corresponds to the given weather code ID
 export default class WeatherIconUtil {
 
-    static iconUrl: string = '../assets/weather-icons/png/';
+    static iconUrl: string = 'assets/weather-icons/png/';
 
     static cloudy: string = 'cloudy.png';
     static cloudy_day: string = 'cloudy-day.png';

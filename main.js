@@ -1,27 +1,43 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
 const Store = require('electron-store');
-var iconpath = path.join(__dirname, 'assets/weather-icons/png/036-eclipse.png');
-
+var open = require("open");
+var iconpath = path.join(__dirname, 'src/favicon.ico')
+const unhandled = require('electron-unhandled');
+const appConfig = require('electron-settings');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 
+unhandled();
+
 const createWindow = () => {
+
+    // Get window state
+    const mainWindowStateKeeper = windowStateKeeper('main');
+
     // Create the browser window.
     win = new BrowserWindow({
-        width: 640,
-        height: 300,
+        x: mainWindowStateKeeper.x,
+        y: mainWindowStateKeeper.y,
+        width: mainWindowStateKeeper.width,
+        height: mainWindowStateKeeper.height,
         resizable: false,
         frame: false,
         skipTaskbar: true,
-        icon: path.join(__dirname, 'favicon.ico'),
+        webPreferences: {
+            nodeIntegration: true
+        },
+        icon: path.join(__dirname, 'dist/favicon.ico'),
     });
+
+    // Track window state
+    mainWindowStateKeeper.track(win);
 
     // and load the index.html of the app.
     win.loadURL(url.format({
-        pathname: path.join(__dirname, 'index.html'),
+        pathname: path.join(__dirname, 'dist/index.html'),
         protocol: 'file:',
         slashes: true
     }));
@@ -41,6 +57,9 @@ const createWindow = () => {
 
     // Emitted when the window is closed.
     win.on('closed', () => {
+
+
+
         // Dereference the window object, usually you would store windows
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
@@ -54,6 +73,11 @@ const createWindow = () => {
 
     win.on('show', function () {
         appIcon.setHighlightMode('always')
+    });
+
+    win.webContents.on('new-window', function (event, url) {
+        event.preventDefault();
+        open(url);
     });
 }
 
@@ -89,3 +113,44 @@ ipcMain.on('saveUserPreferences', (event, arg) => {
 ipcMain.on('loadUserPreferences', (event, arg) => {
     event.returnValue = store.get('userPreferences');
 })
+
+
+function windowStateKeeper(windowName) {
+    let window, windowState;
+    function setBounds() {
+        // Restore from appConfig
+        if (appConfig.has(`windowState.${windowName}`)) {
+            windowState = appConfig.get(`windowState.${windowName}`);
+            return;
+        }
+        // Default
+        windowState = {
+            x: undefined,
+            y: undefined,
+            width: 640,
+            height: 300,
+        };
+    }
+    function saveState() {
+        if (!windowState.isMaximized) {
+            windowState = window.getBounds();
+        }
+        windowState.isMaximized = window.isMaximized();
+        appConfig.set(`windowState.${windowName}`, windowState);
+    }
+    function track(win) {
+        window = win;
+        ['resize', 'move', 'close'].forEach(event => {
+            win.on(event, saveState);
+        });
+    }
+    setBounds();
+    return ({
+        x: windowState.x,
+        y: windowState.y,
+        width: windowState.width,
+        height: windowState.height,
+        isMaximized: windowState.isMaximized,
+        track,
+    });
+}

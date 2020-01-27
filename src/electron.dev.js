@@ -2,7 +2,9 @@ const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
 const Store = require('electron-store');
+var open = require("open");
 var iconpath = path.join(__dirname, 'assets/weather-icons/png/036-eclipse.png')
+const appConfig = require('electron-settings');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -12,10 +14,16 @@ const createWindow = () => {
     // set timeout to render the window not until the Angular 
     // compiler is ready to show the project
     setTimeout(() => {
+
+        // Get window state
+        const mainWindowStateKeeper = windowStateKeeper('main');
+
         // Create the browser window.
         win = new BrowserWindow({
-            width: 640,
-            height: 300,
+            x: mainWindowStateKeeper.x,
+            y: mainWindowStateKeeper.y,
+            width: mainWindowStateKeeper.width,
+            height: mainWindowStateKeeper.height,
             resizable: false,
             frame: false,
             skipTaskbar: true,
@@ -24,6 +32,9 @@ const createWindow = () => {
             },
             icon: './src/favicon.ico'
         });
+
+        // Track window state
+        mainWindowStateKeeper.track(win);
 
         // and load the app.
         win.loadURL(url.format({
@@ -65,6 +76,11 @@ const createWindow = () => {
             appIcon.setHighlightMode('always')
         });
 
+        win.webContents.on('new-window', function(event, url){
+            event.preventDefault();
+            open(url);
+        });
+
     }, 10000);
 }
 
@@ -93,12 +109,52 @@ app.on('activate', () => {
 const store = new Store();
 
 ipcMain.on('saveUserPreferences', (event, arg) => {
-    console.log(arg);
     store.set('userPreferences', arg);
     event.returnValue = true;
 })
 
 ipcMain.on('loadUserPreferences', (event, arg) => {
-    console.log(arg);
     event.returnValue = store.get('userPreferences');
 })
+
+
+
+function windowStateKeeper(windowName) {
+    let window, windowState;
+    function setBounds() {
+        // Restore from appConfig
+        if (appConfig.has(`windowState.${windowName}`)) {
+            windowState = appConfig.get(`windowState.${windowName}`);
+            return;
+        }
+        // Default
+        windowState = {
+            x: undefined,
+            y: undefined,
+            width: 640,
+            height: 300,
+        };
+    }
+    function saveState() {
+        if (!windowState.isMaximized) {
+            windowState = window.getBounds();
+        }
+        windowState.isMaximized = window.isMaximized();
+        appConfig.set(`windowState.${windowName}`, windowState);
+    }
+    function track(win) {
+        window = win;
+        ['resize', 'move', 'close'].forEach(event => {
+            win.on(event, saveState);
+        });
+    }
+    setBounds();
+    return ({
+        x: windowState.x,
+        y: windowState.y,
+        width: windowState.width,
+        height: windowState.height,
+        isMaximized: windowState.isMaximized,
+        track,
+    });
+}
