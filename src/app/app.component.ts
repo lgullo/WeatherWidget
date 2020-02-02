@@ -87,7 +87,7 @@ export class AppComponent implements OnInit {
     }, 1000);
 
     setInterval(() => {
-      if (this.userPreferences != null && this.userPreferences.zipcode != null){
+      if (this.userPreferences != null && this.userPreferences.zipcode != null) {
         this.updateWeather();
       }
     }, 300000); // Refresh weather data every 5 minutes
@@ -150,17 +150,19 @@ export class AppComponent implements OnInit {
           let itemDate = new Date(item.dt * 1000);
 
           // Make sure the forecast we are looking at is tomorrow and on (NOT TODAY)
-          if (currentDate.getFullYear() <= itemDate.getFullYear() && currentDate.getMonth() <= itemDate.getMonth() && currentDate.getDate() < itemDate.getDate()) {
-            let key = itemDate.getMonth() + 1 + '/' + itemDate.getDate();
-            if (this.fiveDayForecast.has(key)) {
-              if (this.fiveDayForecast.get(key).high < item.main.temp_max) {
-                this.fiveDayForecast.get(key).high = item.main.temp_max;
+          if (currentDate.getFullYear() <= itemDate.getFullYear() && currentDate.getMonth() <= itemDate.getMonth()) {
+            if (currentDate.getMonth() < itemDate.getMonth() || (currentDate.getMonth() == itemDate.getMonth() && currentDate.getDate() < itemDate.getDate())) {
+              let key = itemDate.getMonth() + 1 + '/' + itemDate.getDate();
+              if (this.fiveDayForecast.has(key)) {
+                if (this.fiveDayForecast.get(key).high < item.main.temp_max) {
+                  this.fiveDayForecast.get(key).high = item.main.temp_max;
+                }
+                if (this.fiveDayForecast.get(key).low > item.main.temp_min) {
+                  this.fiveDayForecast.get(key).low = item.main.temp_min;
+                }
+              } else {
+                this.fiveDayForecast.set(key, { date: key, high: item.main.temp_max, low: item.main.temp_min, weatherId: item.weather[0].id, time: item.dt });
               }
-              if (this.fiveDayForecast.get(key).low > item.main.temp_min) {
-                this.fiveDayForecast.get(key).low = item.main.temp_min;
-              }
-            } else {
-              this.fiveDayForecast.set(key, { date: key, high: item.main.temp_max, low: item.main.temp_min, weatherId: item.weather[0].id, time: item.dt });
             }
           }
         })
@@ -227,7 +229,8 @@ export class AppComponent implements OnInit {
     let date = new Date(unixTime * 1000);
     let amOrpm = date.getHours() < 12 ? 'AM' : 'PM';
     let hours = date.getHours() > 12 ? date.getHours() % 12 : date.getHours();
-    let timeString = hours + ':' + date.getMinutes() + ' ' + amOrpm;
+    let minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+    let timeString = hours + ':' + minutes + ' ' + amOrpm;
     return timeString;
   }
 
@@ -279,7 +282,7 @@ export class AppComponent implements OnInit {
       this.userPreferences.zipcode = this.zipcodeInput.value;
       this.updateWeather();
       this.updateCurrentTime();
-      //this.saveUserPerferences();
+      this.saveUserPerferences();
     }
   }
 

@@ -4,20 +4,24 @@ const url = require('url');
 const Store = require('electron-store');
 var open = require("open");
 var iconpath = path.join(__dirname, 'assets/weather-icons/png/036-eclipse.png')
+const unhandled = require('electron-unhandled');
 const appConfig = require('electron-settings');
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 
+
+
 const createWindow = () => {
     // set timeout to render the window not until the Angular 
     // compiler is ready to show the project
+
+    unhandled();
     setTimeout(() => {
 
         // Get window state
         const mainWindowStateKeeper = windowStateKeeper('main');
-
+        
         // Create the browser window.
         win = new BrowserWindow({
             x: mainWindowStateKeeper.x,
