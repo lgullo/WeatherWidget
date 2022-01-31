@@ -1,5 +1,10 @@
 # Weather Widget
 
+![WeatherWidgetDisplay](https://user-images.githubusercontent.com/23368565/151857536-7ac39e8f-4f90-4019-824b-748ebdeda8a9.PNG)
+![WW-5day-Forecast](https://user-images.githubusercontent.com/23368565/151857559-78a34404-6a04-424c-b636-840e69d85968.PNG)
+
+The Weather Widget is a simple Electron desktop application, that provides all of the most relevant forecast information for your desired area at a quick glance with a simple UI design. The information is updated frequently to provide you with the most recent information. The Weather Widget provides your current forecast, as well as a quick look at the 5 day forecast for your area.
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.6.
 
 ## Development server
